@@ -1,0 +1,7 @@
+#!/bin/bash
+
+baseDir=$(dirname "$0")
+
+"$baseDir/clone"
+
+"$baseDir/create-databases"

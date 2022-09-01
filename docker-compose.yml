@@ -1,0 +1,50 @@
+version: "3.9"
+
+services:
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    ports:
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+
+  postgres:
+    image: postgres:14-alpine
+    container_name: notte-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: $POSTGRES_USER
+      POSTGRES_HOST_AUTH_METHOD: trust
+      VIRTUAL_HOST: notte-postgres.localtest.me
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    depends_on:
+      - nginx-proxy
+
+  user:
+    build:
+      context: docker/node-16
+      args:
+        UID: $HOST_UID
+        GID: $HOST_GID
+    container_name: notte-user
+    command: sh -c "bin/migrate && npm run start:dev"
+    environment:
+      VIRTUAL_PORT: $USER_PORT
+      VIRTUAL_HOST: notte-user.localtest.me
+      NODE_ENV: $USER_NODE_ENV
+      PORT: $USER_PORT
+      HOST: $USER_HOST
+      DATABASE_URL: $USER_DATABASE_URL
+      DATABASE_POOL_MIN: $USER_DATABASE_POOL_MIN
+      DATABASE_POOL_MAX: $USER_DATABASE_POOL_MAX
+    working_dir: /home/node/app
+    volumes:
+      - ./services/user:/home/node/app
+    depends_on:
+      - nginx-proxy
+      - postgres
+
+volumes:
+  postgres:

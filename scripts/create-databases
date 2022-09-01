@@ -1,0 +1,105 @@
+#!/usr/bin/env node
+
+const path = require("path");
+const fs = require("fs");
+const { execSync } = require("child_process");
+
+const rootPath = path.join(__dirname, "..");
+const envPath = path.join(rootPath, "dev.env");
+const servicesPath = path.join(rootPath, "services");
+const repositoriesPath = path.join(servicesPath, "repositories.json");
+const repositories = Object.entries(
+  JSON.parse(fs.readFileSync(repositoriesPath).toString("utf-8"))
+);
+
+function loadUser() {
+  const uid = execSync("id -u", {
+    env: process.env,
+  }).toString("utf-8");
+
+  const gid = execSync("id -g", {
+    env: process.env,
+  }).toString("utf-8");
+
+  process.env.HOST_UID = uid;
+  process.env.HOST_GID = gid;
+}
+
+function getDatabaseServices() {
+  return repositories
+    .map((repository) => ({
+      service: repository[0],
+      database: repository[1].database
+    }))
+    .filter((database) => !!database.database);
+}
+
+function loadDevEnv() {
+  const env = fs.readFileSync(envPath).toString("utf-8");
+  const cleanedEnv = env
+    .split("\n")
+    .filter((envItem) => /^[A-Z]+/.test(envItem))
+    .map((envItem) => {
+      const [name, ...value] = envItem.split("=");
+
+      return { name, value: value.join("=") };
+    });
+
+  for (const { name, value } of cleanedEnv) {
+    if (!process.env[name]) {
+      process.env[name] = value;
+    }
+  }
+}
+
+async function startPostgres() {
+  execSync(
+    `docker compose up postgres -d`,
+    {
+      stdio: "inherit",
+      env: process.env,
+      cwd: rootPath,
+    }
+  );
+
+  await new Promise((resolve) => setTimeout(resolve, 4000));
+}
+
+function stopPostgres() {
+  execSync(
+    `docker compose down --remove-orphans`,
+    {
+      stdio: "inherit",
+      env: process.env,
+      cwd: rootPath,
+    }
+  );
+}
+
+function createDatabases() {
+  const services = getDatabaseServices();
+
+  for (const { service, database } of services) {
+    execSync(`scripts/_create-database ${database.name}`, {
+      cwd: rootPath,
+      stdio: "inherit",
+      env: process.env,
+    });
+
+    execSync(`scripts/_migrate-database ${service} ${database.migrate}`, {
+      cwd: rootPath,
+      stdio: "inherit",
+      env: process.env,
+    });
+  }
+}
+
+async function main() {
+  loadDevEnv();
+  loadUser();
+  await startPostgres();
+  createDatabases();
+  stopPostgres();
+}
+
+void main();

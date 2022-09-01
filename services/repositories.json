@@ -1,0 +1,9 @@
+{
+  "user": {
+    "repository": "git@github.com:rafaph/notte-user.git",
+    "database": {
+      "name": "notte_user",
+      "migrate": "bin/migrate"
+    }
+  }
+}

@@ -1,0 +1,32 @@
+#!/usr/bin/env node
+
+const path = require("path");
+const fs = require("fs");
+const { execSync } = require("child_process");
+
+try {
+  execSync("command -v git");
+} catch {
+  console.error(
+    `"git" not found in your PATH. Please install git or add it to your PATH.`
+  );
+  process.exit(1);
+}
+
+const rootPath = path.join(__dirname, "..");
+const servicesPath = path.join(rootPath, "services");
+const repositoriesPath = path.join(servicesPath, "repositories.json");
+
+const repositories = Object.entries(
+  JSON.parse(fs.readFileSync(repositoriesPath).toString("utf-8"))
+);
+
+for (const [name, data] of repositories) {
+  const servicePath = path.join(servicesPath, name);
+
+  if (!fs.existsSync(servicePath)) {
+    console.log(`Cloning "${name}" repository to "${servicePath}"...`);
+
+    execSync(`git clone ${data.repository} ${servicePath}`, { stdio: "ignore" });
+  }
+}

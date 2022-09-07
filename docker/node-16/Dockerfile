@@ -5,7 +5,7 @@ ENV PORT=3000
 ARG UID
 ARG GID
 
-RUN apt-get update && apt-get -y install curl git bash
+RUN apt-get update && apt-get -y install python3 curl git bash
 
 RUN npm i --location=global npm
 

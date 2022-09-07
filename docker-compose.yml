@@ -46,5 +46,26 @@ services:
       - nginx-proxy
       - postgres
 
+  auth:
+    build:
+      context: docker/go-1.19
+      args:
+        UID: $HOST_UID
+        GID: $HOST_GID
+    container_name: notte-auth
+    command: bash
+    tty: true
+    stdin_open: true
+    environment:
+      VIRTUAL_PORT: $AUTH_PORT
+      VIRTUAL_HOST: notte-auth.localtest.me
+      PORT: $AUTH_PORT
+    working_dir: /home/notte/app
+    volumes:
+      - ./services/auth:/home/notte/app
+      - $GOPATH:/go
+    depends_on:
+      - nginx-proxy
+
 volumes:
   postgres:

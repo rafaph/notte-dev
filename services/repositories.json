@@ -5,5 +5,8 @@
       "name": "notte_user",
       "migrate": "bin/migrate"
     }
+  },
+  "auth": {
+    "repository": "git@github.com:rafaph/notte-auth.git"
   }
 }

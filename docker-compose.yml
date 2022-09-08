@@ -63,9 +63,10 @@ services:
     working_dir: /home/notte/app
     volumes:
       - ./services/auth:/home/notte/app
-      - $GOPATH:/go
+      - goauth:/go
     depends_on:
       - nginx-proxy
 
 volumes:
   postgres:
+  goauth:

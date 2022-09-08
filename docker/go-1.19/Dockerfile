@@ -12,6 +12,8 @@ RUN getent group $GID || addgroup --gid $GID notte && adduser --system --uid $UI
 
 COPY --chown=notte:notte entrypoint.sh /usr/local/bin/entrypoint
 
+RUN chown -R notte:notte $GOPATH
+
 HEALTHCHECK --interval=30s --timeout=10s CMD wget -q "http://localhost:$PORT/status" -O /dev/null
 
 USER notte

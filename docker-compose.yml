@@ -61,7 +61,8 @@ services:
       VIRTUAL_HOST: notte-auth.localtest.me
       PORT: $AUTH_PORT
       JWT_EXPIRATION_IN_MINUTES: $AUTH_JWT_EXPIRATION_IN_MINUTES
-      JWT_SECRET: $AUTH_JWT_SECRET
+      JWT_PRIVATE_KEY: $AUTH_JWT_PRIVATE_KEY
+      JWT_PUBLIC_KEY: $AUTH_JWT_PUBLIC_KEY
     working_dir: /home/notte/app
     volumes:
       - ./services/auth:/home/notte/app

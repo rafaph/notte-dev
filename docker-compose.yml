@@ -63,6 +63,8 @@ services:
       JWT_EXPIRATION_IN_MINUTES: $AUTH_JWT_EXPIRATION_IN_MINUTES
       JWT_PRIVATE_KEY: $AUTH_JWT_PRIVATE_KEY
       JWT_PUBLIC_KEY: $AUTH_JWT_PUBLIC_KEY
+      USER_BASE_URL: $AUTH_USER_BASE_URL
+      DEBUG: true
     working_dir: /home/notte/app
     volumes:
       - ./services/auth:/home/notte/app

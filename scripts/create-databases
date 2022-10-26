@@ -42,7 +42,7 @@ function loadDevEnv() {
     .map((envItem) => {
       const [name, ...value] = envItem.split("=");
 
-      return { name, value: value.join("=") };
+      return { name, value: value.join("=".trim()) };
     });
 
   for (const { name, value } of cleanedEnv) {

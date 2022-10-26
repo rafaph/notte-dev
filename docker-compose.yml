@@ -30,15 +30,11 @@ services:
         GID: $HOST_GID
     container_name: notte-user
     command: sh -c "bin/migrate && npm run start:dev"
+    env_file:
+      - ./services/user/dev.env
     environment:
-      VIRTUAL_PORT: $USER_PORT
+      VIRTUAL_PORT: 3000
       VIRTUAL_HOST: notte-user.localtest.me
-      NODE_ENV: $USER_NODE_ENV
-      PORT: $USER_PORT
-      HOST: $USER_HOST
-      DATABASE_URL: $USER_DATABASE_URL
-      DATABASE_POOL_MIN: $USER_DATABASE_POOL_MIN
-      DATABASE_POOL_MAX: $USER_DATABASE_POOL_MAX
     working_dir: /home/node/app
     volumes:
       - ./services/user:/home/node/app
@@ -48,7 +44,7 @@ services:
 
   auth:
     build:
-      context: docker/go-1.19
+      context: docker/python-3.11
       args:
         UID: $HOST_UID
         GID: $HOST_GID
@@ -56,22 +52,17 @@ services:
     command: bash
     tty: true
     stdin_open: true
+    env_file:
+      - ./services/auth/dev.env
     environment:
-      VIRTUAL_PORT: $AUTH_PORT
       VIRTUAL_HOST: notte-auth.localtest.me
-      PORT: $AUTH_PORT
-      JWT_EXPIRATION_IN_MINUTES: $AUTH_JWT_EXPIRATION_IN_MINUTES
-      JWT_PRIVATE_KEY: $AUTH_JWT_PRIVATE_KEY
-      JWT_PUBLIC_KEY: $AUTH_JWT_PUBLIC_KEY
-      USER_BASE_URL: $AUTH_USER_BASE_URL
-      DEBUG: true
     working_dir: /home/notte/app
     volumes:
       - ./services/auth:/home/notte/app
-      - goauth:/go
+      - auth-deps:/home/notte/.local
     depends_on:
       - nginx-proxy
 
 volumes:
   postgres:
-  goauth:
+  auth-deps:

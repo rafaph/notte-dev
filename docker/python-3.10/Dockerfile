@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.10-slim
 
 ENV PORT=3000
 ENV VIRTUAL_PORT=$PORT
@@ -14,11 +14,9 @@ HEALTHCHECK --interval=30s --timeout=10s CMD wget -q "http://localhost:$PORT/sta
 
 USER notte
 
-RUN pip install -U pip setuptools wheel
+RUN pip install -U pip setuptools wheel && pip install poetry==1.2.2
 
-RUN mkdir -p /home/notte/.local/bin
-RUN mkdir -p /home/notte/.local/lib/python3.11/site-packages
-RUN chown -R notte:notte /home/notte/.local
+RUN python -m poetry config cache-dir .poetry
 
 COPY --chown=notte:notte entrypoint.sh /usr/local/bin/entrypoint
 

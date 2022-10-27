@@ -44,7 +44,7 @@ services:
 
   auth:
     build:
-      context: docker/python-3.11
+      context: docker/python-3.10
       args:
         UID: $HOST_UID
         GID: $HOST_GID
@@ -59,10 +59,8 @@ services:
     working_dir: /home/notte/app
     volumes:
       - ./services/auth:/home/notte/app
-      - auth-deps:/home/notte/.local
     depends_on:
       - nginx-proxy
 
 volumes:
   postgres:
-  auth-deps:

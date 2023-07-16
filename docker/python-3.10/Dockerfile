@@ -14,9 +14,9 @@ HEALTHCHECK --interval=30s --timeout=10s CMD wget -q "http://localhost:$PORT/sta
 
 USER notte
 
-RUN pip install -U pip setuptools wheel && pip install poetry==1.2.2
+RUN pip install --user -U pip setuptools wheel && pip install --user poetry poetry-plugin-up
 
-RUN python -m poetry config cache-dir .poetry
+RUN python -m poetry config virtualenvs.in-project true
 
 COPY --chown=notte:notte entrypoint.sh /usr/local/bin/entrypoint
 

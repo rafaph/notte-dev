@@ -24,7 +24,7 @@ services:
 
   user:
     build:
-      context: docker/node-16
+      context: docker/node-18
       args:
         UID: $HOST_UID
         GID: $HOST_GID

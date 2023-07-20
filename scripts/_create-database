@@ -1,3 +1,16 @@
 #!/bin/bash
 
-docker compose exec postgres sh -c "psql -U $POSTGRES_USER -tc \"SELECT 1 FROM pg_database WHERE datname = '$1';\" | grep -q 1 || psql -U $POSTGRES_USER -c \"CREATE DATABASE $1;\""
+MYSQL_USER="root"
+MYSQL_PASSWORD="notte"
+DATABASE_NAME="$1"
+
+docker compose exec mysql sh -c "
+  db_exists=\$(mysql -u '$MYSQL_USER' -p'$MYSQL_PASSWORD' -e \"SHOW DATABASES LIKE '$DATABASE_NAME';\" | grep -o '$DATABASE_NAME')
+
+  if [ \"\$db_exists\" = \"$DATABASE_NAME\" ]; then
+    echo \"Database '$DATABASE_NAME' already exists. Skipping creation.\"
+  else
+    mysql -u '$MYSQL_USER' -p'$MYSQL_PASSWORD' -e \"CREATE DATABASE $DATABASE_NAME;GRANT ALL PRIVILEGES ON $DATABASE_NAME.* TO 'notte'@'%';\"
+    echo \"Database '$DATABASE_NAME' created successfully.\"
+  fi
+"

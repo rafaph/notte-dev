@@ -29,4 +29,11 @@ for (const [name, data] of repositories) {
 
     execSync(`git clone ${data.repository} ${servicePath}`, { stdio: "ignore" });
   }
+
+  if (
+    fs.existsSync(path.join(servicesPath, "package.json")) &&
+    !fs.existsSync(path.join(servicesPath, "node_modules"))
+  ) {
+    execSync("npm install", { stdio: "ignore", cwd: servicePath });
+  }
 }

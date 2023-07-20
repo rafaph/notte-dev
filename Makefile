@@ -11,7 +11,7 @@ define down
 endef
 
 define compose
-	docker compose --env-file $(DEV_DIR)/dev.env $(1)
+	docker compose $(1)
 endef
 
 define run

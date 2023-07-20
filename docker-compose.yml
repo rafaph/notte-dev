@@ -8,17 +8,22 @@ services:
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
 
-  postgres:
-    image: postgres:14-alpine
-    container_name: notte-postgres
+  mysql:
+    image: mysql:8
+    container_name: notte-mysql
     ports:
-      - "5432:5432"
+      - "3306:3306"
     environment:
-      POSTGRES_USER: $POSTGRES_USER
-      POSTGRES_HOST_AUTH_METHOD: trust
-      VIRTUAL_HOST: notte-postgres.localtest.me
+      MYSQL_DATABASE: notte
+      MYSQL_USER: notte
+      MYSQL_PASSWORD: notte
+      MYSQL_ROOT_PASSWORD: notte
+      MYSQL_LOG_BIN: ON
+      MYSQL_BINLOG_FORMAT: ROW
+      MYSQL_EXPIRE_LOGS_DAYS: "7"
+      VIRTUAL_HOST: notte-mysql.localtest.me
     volumes:
-      - postgres:/var/lib/postgresql/data
+      - mysql:/var/lib/mysql
     depends_on:
       - nginx-proxy
 
@@ -40,7 +45,7 @@ services:
       - ./services/user:/home/node/app
     depends_on:
       - nginx-proxy
-      - postgres
+      - mysql
 
   auth:
     build:
@@ -63,4 +68,4 @@ services:
       - nginx-proxy
 
 volumes:
-  postgres:
+  mysql:

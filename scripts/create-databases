@@ -5,7 +5,6 @@ const fs = require("fs");
 const { execSync } = require("child_process");
 
 const rootPath = path.join(__dirname, "..");
-const envPath = path.join(rootPath, "dev.env");
 const servicesPath = path.join(rootPath, "services");
 const repositoriesPath = path.join(servicesPath, "repositories.json");
 const repositories = Object.entries(
@@ -34,27 +33,9 @@ function getDatabaseServices() {
     .filter((database) => !!database.database);
 }
 
-function loadDevEnv() {
-  const env = fs.readFileSync(envPath).toString("utf-8");
-  const cleanedEnv = env
-    .split("\n")
-    .filter((envItem) => /^[A-Z]+/.test(envItem))
-    .map((envItem) => {
-      const [name, ...value] = envItem.split("=");
-
-      return { name, value: value.join("=").trim() };
-    });
-
-  for (const { name, value } of cleanedEnv) {
-    if (!process.env[name]) {
-      process.env[name] = value;
-    }
-  }
-}
-
-async function startPostgres() {
+async function startDatabase() {
   execSync(
-    `docker compose up postgres -d`,
+    `docker compose up mysql -d`,
     {
       stdio: "inherit",
       env: process.env,
@@ -62,10 +43,10 @@ async function startPostgres() {
     }
   );
 
-  await new Promise((resolve) => setTimeout(resolve, 4000));
+  await new Promise((resolve) => setTimeout(resolve, 10000));
 }
 
-function stopPostgres() {
+function stopDatabase() {
   execSync(
     `docker compose down --remove-orphans`,
     {
@@ -95,11 +76,10 @@ function createDatabases() {
 }
 
 async function main() {
-  loadDevEnv();
   loadUser();
-  await startPostgres();
+  await startDatabase();
   createDatabases();
-  stopPostgres();
+  stopDatabase();
 }
 
 void main();

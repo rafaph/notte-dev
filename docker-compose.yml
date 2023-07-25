@@ -18,9 +18,6 @@ services:
       MYSQL_USER: notte
       MYSQL_PASSWORD: notte
       MYSQL_ROOT_PASSWORD: notte
-      MYSQL_LOG_BIN: ON
-      MYSQL_BINLOG_FORMAT: ROW
-      MYSQL_EXPIRE_LOGS_DAYS: "7"
       VIRTUAL_HOST: notte-mysql.localtest.me
     volumes:
       - mysql:/var/lib/mysql

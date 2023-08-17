@@ -1,13 +1,6 @@
 version: "3.9"
 
 services:
-  nginx-proxy:
-    image: jwilder/nginx-proxy
-    ports:
-      - "80:80"
-    volumes:
-      - /var/run/docker.sock:/tmp/docker.sock:ro
-
   mysql:
     image: mysql:8
     container_name: notte-mysql
@@ -18,11 +11,8 @@ services:
       MYSQL_USER: notte
       MYSQL_PASSWORD: notte
       MYSQL_ROOT_PASSWORD: notte
-      VIRTUAL_HOST: notte-mysql.localtest.me
     volumes:
       - mysql:/var/lib/mysql
-    depends_on:
-      - nginx-proxy
 
   user:
     build:
@@ -34,35 +24,30 @@ services:
     command: sh -c "bin/migrate && npm run start:dev"
     env_file:
       - ./services/user/dev.env
-    environment:
-      VIRTUAL_PORT: 3000
-      VIRTUAL_HOST: notte-user.localtest.me
+    ports:
+      - "3000:3000"
     working_dir: /home/node/app
     volumes:
       - ./services/user:/home/node/app
     depends_on:
-      - nginx-proxy
       - mysql
 
   auth:
     build:
-      context: docker/python-3.10
+      context: docker/deno-1.36
       args:
         UID: $HOST_UID
         GID: $HOST_GID
     container_name: notte-auth
+    ports:
+      - "3001:3001"
+    env_file:
+      - ./services/auth/dev.env
+    volumes:
+      - ./services/auth:/home/deno/app
     command: bash
     tty: true
     stdin_open: true
-    env_file:
-      - ./services/auth/dev.env
-    environment:
-      VIRTUAL_HOST: notte-auth.localtest.me
-    working_dir: /home/notte/app
-    volumes:
-      - ./services/auth:/home/notte/app
-    depends_on:
-      - nginx-proxy
 
 volumes:
   mysql:

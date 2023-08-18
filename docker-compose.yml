@@ -45,9 +45,11 @@ services:
       - ./services/auth/dev.env
     volumes:
       - ./services/auth:/home/deno/app
+      - deno:/deno-dir
     command: bash
     tty: true
     stdin_open: true
 
 volumes:
   mysql:
+  deno:
